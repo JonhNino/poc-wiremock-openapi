@@ -15,6 +15,7 @@
         <quarkus.platform.version>3.20.5</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.2</surefire-plugin.version>
+        <openapi-generator.version>7.12.0</openapi-generator.version>
     </properties>
 
     <dependencyManagement>
@@ -35,13 +36,31 @@
             <artifactId>quarkus-rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.wiremock</groupId>
             <artifactId>quarkus-wiremock</artifactId>
             <version>1.5.1</version>
         </dependency>
         <dependency>
+            <groupId>io.quarkiverse.wiremock</groupId>
+            <artifactId>quarkus-wiremock-test</artifactId>
+            <version>1.5.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -61,6 +80,54 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>add-generated-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/openapi/src/gen/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-default-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/default.yaml</inputSpec>
+                            <generatorName>jaxrs-spec</generatorName>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <apiPackage>org.acme.api</apiPackage>
+                            <modelPackage>org.acme.model</modelPackage>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <returnResponse>false</returnResponse>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useTags>true</useTags>
+                                <dateLibrary>java8</dateLibrary>
+                                <openApiNullable>false</openApiNullable>
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>

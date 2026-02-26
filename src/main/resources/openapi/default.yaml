@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Sample External API
+  version: 1.0.0
+  description: Simple API contract with required headers and optional query parameters.
+
+paths:
+  /customers:
+    get:
+      summary: Get customer list
+      description: Returns a list of customers based on optional filters.
+      operationId: getCustomers
+
+      parameters:
+        # ===== Required Headers =====
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication
+
+        - name: session-id
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Unique session identifier
+
+        - name: origin-device
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Device origin identifier
+
+        # ===== Optional Query Params =====
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by customer name
+
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by customer status
+
+        - name: minAge
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Minimum age filter
+
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponse'
+
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+
+    # ===== Success Model =====
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        age:
+          type: integer
+        status:
+          type: string
+        email:
+          type: string
+      required:
+        - id
+        - name
+        - age
+        - status
+        - email
+
+    # ===== Error Model (Global) =====
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+      required:
+        - code
+        - description
