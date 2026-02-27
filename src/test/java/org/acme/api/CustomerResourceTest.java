@@ -25,6 +25,20 @@ class CustomerResourceTest {
     @Test
     void testGetCustomers_success_200() {
         wiremock.register(
+                get(urlEqualTo("/auth"))
+                        .willReturn(aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", "application/json")
+                                .withBody("""
+                                        {
+                                          "access_token": "test-access-token",
+                                          "token_type": "Bearer",
+                                          "expires_in": 3600
+                                        }
+                                        """))
+        );
+
+        wiremock.register(
                 get(urlEqualTo("/wiremock"))
                         .willReturn(aResponse()
                                 .withStatus(200)
@@ -82,6 +96,20 @@ class CustomerResourceTest {
     @Test
     void testGetCustomers_error_401() {
         wiremock.register(
+                get(urlEqualTo("/auth"))
+                        .willReturn(aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", "application/json")
+                                .withBody("""
+                                        {
+                                          "access_token": "test-access-token",
+                                          "token_type": "Bearer",
+                                          "expires_in": 3600
+                                        }
+                                        """))
+        );
+
+        wiremock.register(
                 get(urlEqualTo("/wiremock"))
                         .willReturn(aResponse()
                                 .withStatus(401)
@@ -106,4 +134,3 @@ class CustomerResourceTest {
                 .body("description", is("Unauthorized access - invalid or expired token"));
     }
 }
-
